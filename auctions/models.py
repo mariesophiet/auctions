@@ -9,7 +9,18 @@ class User(AbstractUser):
     pass
 
 class Listing(models.Model):
+    CATEGORIES = [
+        ("ELECTRONICS", "Electronics"),
+        ("ART", "Art"),
+        ("CLOTHING", "Clothing"),
+        ("TOYS", "Toys"),
+        ("BOOKS, MOVIES, MUSIC", "Books, Movies, Music"),
+        ("HEALTH, BEAUTY", "Health, Beauty"),
+        ("PET SUPPLIES", "Pet Supplies"),
+        ("NONE", "None")
+    ]
     title = models.CharField(max_length=100)
+    category = models.CharField(choices=CATEGORIES, default="NONE", max_length=25)
     description = models.CharField(max_length=500)
     price = models.DecimalField(max_digits=10, decimal_places=2)
     date = models.DateTimeField(default=datetime.now, blank=True)
