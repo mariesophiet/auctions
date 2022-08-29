@@ -67,18 +67,26 @@ def register(request):
 
 class NewListingForm(forms.Form):
     title = forms.CharField(label="Title")
-    category = forms.ChoiceField(required=False)# choices=Listing.categories.all())
+    category = forms.ChoiceField(required=False, choices=Listing.category.field.choices)
     price = forms.DecimalField(max_digits=10, decimal_places=2)
     image = forms.ImageField(required=False)
     description = forms.CharField(max_length=500)
 
 def listing(request):
     if request.method == "POST":
-        return
+        title = request.POST["title"]
+        category = request.POST["category"]
+        price = request.POST["price"]
+        image = request.FILES["image"]
+        description = request.POST["description"]
+
+        listing = Listing(title=title, category=category, price=price, img=image, description=description, user=request.user)
+        listing.save()
+        return render(request, "auctions/index.html")
     
     else: 
         return render(request, "auctions/listing.html", {
-            "form": NewListingForm()
+            "form": NewListingForm(request.POST, request.FILES)
         })
 
 def categories(request):

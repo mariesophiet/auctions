@@ -10,14 +10,15 @@ class User(AbstractUser):
 
 class Listing(models.Model):
     CATEGORIES = [
+        ("NONE", "None"),
         ("ELECTRONICS", "Electronics"),
         ("ART", "Art"),
         ("CLOTHING", "Clothing"),
         ("TOYS", "Toys"),
         ("BOOKS, MOVIES, MUSIC", "Books, Movies, Music"),
         ("HEALTH, BEAUTY", "Health, Beauty"),
-        ("PET SUPPLIES", "Pet Supplies"),
-        ("NONE", "None")
+        ("PET SUPPLIES", "Pet Supplies")
+        
     ]
     title = models.CharField(max_length=100)
     category = models.CharField(choices=CATEGORIES, default="NONE", max_length=25)
@@ -26,7 +27,7 @@ class Listing(models.Model):
     date = models.DateTimeField(default=datetime.now, blank=True)
     active = models.BooleanField(default=True)
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="lister")
-    img = models.ImageField(upload_to="images/", default=None)
+    img = models.ImageField(upload_to="images", default=None)
     
 class Bids(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="bidder")
