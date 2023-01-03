@@ -2,8 +2,7 @@
 
 {% block body %}
 <div class="container">
-<h1>Active Listings</h1>
-    {% for listing in listings %}
+<h1>{{ listing.title}}</h1>
     <div class="row">
         <div class="col">
             <p><img src="{{ listing.img.url }}" alt="Image" width="120"></p>
@@ -15,6 +14,5 @@
             <p>Created {{ listing.date }}</p>
         </div>
     </div>
-    {% endfor %}
 </div>
 {% endblock %}

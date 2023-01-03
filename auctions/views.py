@@ -13,6 +13,11 @@ def index(request):
         "listings": Listing.objects.all
     })
 
+def view_item(request):
+    return render(request, "auctions/item.html", {
+        "listing": Listing.objects.get(id="1")
+    })
+
 
 def login_view(request):
     if request.method == "POST":
