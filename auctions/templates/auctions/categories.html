@@ -1,7 +1,12 @@
 {% extends "auctions/layout.html" %}
 
 {% block body %}
+<div class="container">
     <h2>Categories</h2>
-    <p>TODO</p>
+    <p>TODO: List all categories and provide links to lists of all listings of the respective category</p>
+    {% for category in categories %}
+    <p>{{ category }}</p>
+    {% endfor %}
+</div>
 
 {% endblock %}
