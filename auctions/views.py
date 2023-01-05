@@ -13,9 +13,9 @@ def index(request):
         "listings": Listing.objects.all
     })
 
-def view_item(request):
+def view_item(request, id):
     return render(request, "auctions/item.html", {
-        "listing": Listing.objects.get(id="1")
+        "listing": Listing.objects.get(id=id)
     })
 
 
