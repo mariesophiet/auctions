@@ -13,11 +13,35 @@ def index(request):
         "listings": Listing.objects.all
     })
 
+class NewCommentForm(forms.Form):
+    content = forms.CharField(max_length=500)
+
 def view_item(request, id):
-    return render(request, "auctions/item.html", {
-        "listing": Listing.objects.get(id=id),
-        "comments": Comments.objects.filter(product_id=id)
-    })
+    if request.method == "POST":
+        # post a new comment
+
+        content = request.POST["content"]
+        # get current user's id
+        user = request.user
+        product = Listing.objects.get(id=id) # TODO: hacky fix 
+
+        # save the comment in db
+        comment = Comments(user=user, product=product, comment=content)
+        comment.save()
+        
+        # hacky fix reload page after form submission
+        return render(request, "auctions/item.html", {
+            "listing": Listing.objects.get(id=id),
+            "comments": Comments.objects.filter(product_id=id),
+            "form": NewCommentForm(request.POST)
+        })
+        
+    else:
+        return render(request, "auctions/item.html", {
+            "listing": Listing.objects.get(id=id),
+            "comments": Comments.objects.filter(product_id=id),
+            "form": NewCommentForm(request.POST)
+        })
 
 
 def login_view(request):
@@ -72,6 +96,8 @@ def register(request):
         return render(request, "auctions/register.html")
 
 class NewListingForm(forms.Form):
+    # form to add a new product to sell
+
     title = forms.CharField(label="Title")
     category = forms.ChoiceField(required=False, choices=Listing.category.field.choices)
     price = forms.DecimalField(max_digits=10, decimal_places=2)
@@ -80,6 +106,7 @@ class NewListingForm(forms.Form):
 
 def listing(request):
     if request.method == "POST":
+        # save the new product in db
         title = request.POST["title"]
         category = request.POST["category"]
         price = request.POST["price"]
@@ -97,6 +124,7 @@ def listing(request):
 
 def categories(request):
     # show all categories 
+
     # fix to get only the second values in CATEGORIES
     categories = [cat[1] for cat in Listing.CATEGORIES]
     return render(request, "auctions/categories.html", {
