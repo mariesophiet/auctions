@@ -20,6 +20,7 @@ class Listing(models.Model):
         ("PET SUPPLIES", "Pet Supplies")
         
     ]
+    
     title = models.CharField(max_length=100)
     category = models.CharField(choices=CATEGORIES, default="NONE", max_length=25)
     description = models.CharField(max_length=500)
@@ -31,11 +32,13 @@ class Listing(models.Model):
     
 class Bids(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="bidder")
+    product = models.ForeignKey(Listing, on_delete=models.CASCADE)#, related_name="bidProduct", blank=False, null=False)
     bid = models.DecimalField(max_digits=10, decimal_places=2)
     date = models.DateTimeField(default=datetime.now, blank=True)
     
 
 class Comments(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="author")
+    product = models.ForeignKey(Listing, on_delete=models.CASCADE)#, related_name="commentProduct", blank=False, null=False)
     comment = models.CharField(max_length=500)
     date = models.DateTimeField(default=datetime.now, blank=True)

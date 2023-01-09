@@ -15,7 +15,8 @@ def index(request):
 
 def view_item(request, id):
     return render(request, "auctions/item.html", {
-        "listing": Listing.objects.get(id=id)
+        "listing": Listing.objects.get(id=id),
+        "comments": Comments.objects.filter(product_id=id)
     })
 
 
@@ -95,9 +96,17 @@ def listing(request):
         })
 
 def categories(request):
+    # show all categories 
+    # fix to get only the second values in CATEGORIES
+    categories = [cat[1] for cat in Listing.CATEGORIES]
     return render(request, "auctions/categories.html", {
-        # fix to get only the second values in CATEGORIES
-        "categories": [cat[1] for cat in Listing.CATEGORIES]
+        "categories": categories
+    })
+
+def view_category(request, category):
+    # only show listings of one category
+    return render(request, "auctions/index.html", {
+        "listings": Listing.objects.filter(category=category.upper())
     })
 
 def watchlist(request):
