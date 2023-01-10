@@ -20,7 +20,7 @@
             {% if comments %}
             {% for comment in comments %}
             <p>{{ comment.comment }}</p>
-            <p>{{ comment.user }}</p>
+            <p>(From {{ comment.user }})</p>
             {% endfor %}
             {% else %}
             <p>No comments.</p>
