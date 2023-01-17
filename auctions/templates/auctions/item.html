@@ -16,21 +16,29 @@
     </div>
     <div class="row">
         <div class="col">
-            <h5>Comments:</h5>
+            <h5 class="display-5">Comments:</h5>
             {% if comments %}
             {% for comment in comments %}
-            <p>{{ comment.comment }}</p>
-            <p>(From {{ comment.user }})</p>
+            <figure>
+                <blockquote class="blockquote">
+                    <p>{{ comment.comment }}</p>
+                </blockquote>
+                <figcaption class="blockquote-footer">
+                    <p>From {{ comment.user }}</p>
+                </figcaption>
+            </figure>
             {% endfor %}
             {% else %}
             <p>No comments.</p>
             {% endif %}
-            
+            <blockquote class="blockquote">
+
             <form action="{% url 'auctions:item' id=listing.id %}" method="post" enctype='multipart/form-data'>
                 {% csrf_token %}
                 {{ form }}
                 <input type="submit" value="Post">
             </form>
+            </blockquote>
         </div>
     </div>
    

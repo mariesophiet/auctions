@@ -14,7 +14,14 @@ def index(request):
     })
 
 class NewCommentForm(forms.Form):
-    content = forms.CharField(max_length=500)
+    content = forms.CharField(max_length=500, required=False,
+                            widget= forms.TextInput
+                           (attrs={
+                               'class': 'title',
+                               'name': 'Title',
+                               'placeholder':'Enter your comment here',
+                               'required': 'True'
+                            }))
 
 def view_item(request, id):
     if request.method == "POST":
@@ -29,12 +36,8 @@ def view_item(request, id):
         comment = Comments(user=user, product=product, comment=content)
         comment.save()
         
-        # hacky fix reload page after form submission
-        return render(request, "auctions/item.html", {
-            "listing": Listing.objects.get(id=id),
-            "comments": Comments.objects.filter(product_id=id),
-            "form": NewCommentForm(request.POST)
-        })
+        # reload the item page of the specific item
+        return HttpResponseRedirect(str(id))
         
     else:
         return render(request, "auctions/item.html", {
@@ -115,7 +118,8 @@ def listing(request):
 
         listing = Listing(title=title, category=category, price=price, img=image, description=description, user=request.user)
         listing.save()
-        return render(request, "auctions/index.html")
+        # TODO: fix return render(request, "auctions/index.html")
+        return HttpResponseRedirect("/")
     
     else: 
         return render(request, "auctions/listing.html", {
