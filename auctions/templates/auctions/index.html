@@ -8,8 +8,8 @@
     {% for listing in listings %}
         <div class="col">
         <div class="card">
-            <h4><a href="{% url 'auctions:item' id=listing.id %}">{{ listing.title }}</a></h4>
-            <p><img src="{{ listing.img.url }}" alt="Image" width="120"></p>
+            <p><img class="card-img-top" src="{{ listing.img.url }}" alt="Image" height="120px"></p>
+            <h4 class="card-title"><a href="{% url 'auctions:item' id=listing.id %}">{{ listing.title }}</a></h4>
             <p>Price: {{ listing.price }}</p>
             <p>{{ listing.description }}</p>
             <p>Created {{ listing.date }}</p>

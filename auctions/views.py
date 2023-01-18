@@ -118,7 +118,7 @@ def listing(request):
 
         listing = Listing(title=title, category=category, price=price, img=image, description=description, user=request.user)
         listing.save()
-        # TODO: fix return render(request, "auctions/index.html")
+        # redirect to index page 
         return HttpResponseRedirect("/")
     
     else: 
