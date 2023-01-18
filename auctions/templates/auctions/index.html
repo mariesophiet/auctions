@@ -3,12 +3,12 @@
 {% block body %}
 <div class="container">
 <h1>Active Listings</h1>
-<div class="container text-center">
+<div class="container text-center justify-center">
     <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3">
     {% for listing in listings %}
-        <div class="col">
+        <div class="col mb-5">
         <div class="card">
-            <p><img class="card-img-top" src="{{ listing.img.url }}" alt="Image" height="120px"></p>
+            <a href="{% url 'auctions:item' id=listing.id %}"><img class="card-img-top" src="{{ listing.img.url }}" alt="Image" height="120px"></a>
             <h4 class="card-title"><a href="{% url 'auctions:item' id=listing.id %}">{{ listing.title }}</a></h4>
             <p>Price: {{ listing.price }}</p>
             <p>{{ listing.description }}</p>

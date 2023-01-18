@@ -1,11 +1,23 @@
 {% extends "auctions/layout.html" %}
 
 {% block body %}
+<div class="container">
     <h2>Create Listing</h2>
-    <form action="{% url 'auctions:listing' %}" method="post" enctype='multipart/form-data'>
+    
+    <form class="form-horizontal" action="{% url 'auctions:listing' %}" method="post" enctype='multipart/form-data'>
         {% csrf_token %}
-        {{ form }}
-        <input type="submit">
+        {% for field in form  %}
+        {{ field.errors }}
+        <div class="form-group">
+            <label class="control-label col-sm-1"><b>{{ field.label_tag }}</b></label>
+            <div class="col">
+                <p>{{ field }}</p>
+            </div>
+        </div>
+        {% endfor %}
+        <input class="form-control" type="submit">
     </form>
+</div>
+</div>
 
 {% endblock %}

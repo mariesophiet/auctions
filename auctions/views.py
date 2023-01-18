@@ -101,11 +101,32 @@ def register(request):
 class NewListingForm(forms.Form):
     # form to add a new product to sell
 
-    title = forms.CharField(label="Title")
+    title = forms.CharField(label="Title", required=False,
+                            widget= forms.TextInput
+                           (attrs={
+                               'class': 'title',
+                               'name': 'Title',
+                               'placeholder':'',
+                               'required': 'True'
+                            }))
     category = forms.ChoiceField(required=False, choices=Listing.category.field.choices)
-    price = forms.DecimalField(max_digits=10, decimal_places=2)
+    price = forms.DecimalField(max_digits=10, decimal_places=2, required=False,
+                                widget= forms.NumberInput #TODO: test
+                           (attrs={
+                               'class': 'price',
+                               'name': 'Price',
+                               'placeholder':'',
+                               'required': 'True'
+                            }))
     image = forms.ImageField(required=False)
-    description = forms.CharField(max_length=500)
+    description = forms.CharField(max_length=500, required=False,
+                            widget= forms.Textarea
+                           (attrs={
+                               'class': 'despcription',
+                               'name': 'Description',
+                               'placeholder':'',
+                               'required': 'True',
+                            }))
 
 def listing(request):
     if request.method == "POST":
