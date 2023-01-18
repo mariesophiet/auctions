@@ -3,18 +3,20 @@
 {% block body %}
 <div class="container">
 <h1>Active Listings</h1>
+<div class="container text-center">
+    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3">
     {% for listing in listings %}
-    <div class="row">
         <div class="col">
-            <p><img src="{{ listing.img.url }}" alt="Image" width="120"></p>
-        </div>
-        <div class="col">
+        <div class="card">
             <h4><a href="{% url 'auctions:item' id=listing.id %}">{{ listing.title }}</a></h4>
+            <p><img src="{{ listing.img.url }}" alt="Image" width="120"></p>
             <p>Price: {{ listing.price }}</p>
             <p>{{ listing.description }}</p>
             <p>Created {{ listing.date }}</p>
-        </div>
-    </div>
+        </div>   
+        </div> 
     {% endfor %}
+</div>
+</div>
 </div>
 {% endblock %}

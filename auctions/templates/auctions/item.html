@@ -2,13 +2,12 @@
 
 {% block body %}
 <div class="container">
-<h1>{{ listing.title}}</h1>
-    <div class="row">
+    <div class="row border-bottom">
         <div class="col">
             <p><img src="{{ listing.img.url }}" alt="Image" width="120"></p>
         </div>
         <div class="col">
-            <h4>{{ listing.title }}</h4>
+            <h1>{{ listing.title }}</h1>
             <p>Price: {{ listing.price }}</p>
             <p>{{ listing.description }}</p>
             <p>Created {{ listing.date }}</p>
@@ -16,7 +15,7 @@
     </div>
     <div class="row">
         <div class="col">
-            <h5 class="display-5">Comments:</h5>
+            <h3 class="display-5">Comments:</h3>
             {% if comments %}
             {% for comment in comments %}
             <figure>

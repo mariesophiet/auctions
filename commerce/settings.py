@@ -122,7 +122,9 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/3.0/howto/static-files/
 
-STATIC_URL = '/static/'
+# app-specific route to auctions statics
+STATIC_URL = '/auctions/static/'
+
 
 # Automaticalyl create Primary Key in DB
 DEFAULT_AUTO_FIELD='django.db.models.BigAutoField'
