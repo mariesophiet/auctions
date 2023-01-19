@@ -38,8 +38,10 @@
 
             <form action="{% url 'auctions:item' id=listing.id %}" method="post" enctype='multipart/form-data'>
                 {% csrf_token %}
-                {{ form }}
-                <input type="submit" value="Post">
+                {% for field in form %}
+                {{ field }}
+                {% endfor %}
+                <input class="form-control" type="submit" value="Post">
             </form>
             </blockquote>
         </div>

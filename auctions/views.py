@@ -15,10 +15,10 @@ def index(request):
 
 class NewCommentForm(forms.Form):
     content = forms.CharField(max_length=500, required=False,
-                            widget= forms.TextInput
+                            widget= forms.Textarea
                            (attrs={
-                               'class': 'title',
-                               'name': 'Title',
+                               'class': 'comment',
+                               'name': 'Comment',
                                'placeholder':'Enter your comment here',
                                'required': 'True'
                             }))
