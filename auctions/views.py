@@ -7,12 +7,14 @@ from django import forms
 
 from .models import User, Listing, Comments, Bids
 
+from bootstrap_datepicker_plus.widgets import DateTimePickerInput
 
 def index(request):
     return render(request, "auctions/index.html", {
         "listings": Listing.objects.all
     })
 
+# form to write a new comment
 class NewCommentForm(forms.Form):
     content = forms.CharField(max_length=500, required=False,
                             widget= forms.Textarea
@@ -20,6 +22,17 @@ class NewCommentForm(forms.Form):
                                'class': 'comment',
                                'name': 'Comment',
                                'placeholder':'Enter your comment here',
+                               'required': 'True'
+                            }))
+
+# form to give a new bid
+class NewBidForm(forms.Form):
+    bid = forms.DecimalField(max_digits=10, decimal_places=2, required=False,
+                                widget= forms.NumberInput #TODO: test
+                           (attrs={
+                               'class': 'bid',
+                               'name': 'Bid',
+                               'placeholder':'',
                                'required': 'True'
                             }))
 
@@ -43,7 +56,9 @@ def view_item(request, id):
         return render(request, "auctions/item.html", {
             "listing": Listing.objects.get(id=id),
             "comments": Comments.objects.filter(product_id=id),
-            "form": NewCommentForm(request.POST)
+            "form_comment": NewCommentForm(request.POST),
+            "bids": Bids.objects.get(product_id=id),
+            "form_bid": NewBidForm(request.POST)
         })
 
 
@@ -118,6 +133,14 @@ class NewListingForm(forms.Form):
                                'placeholder':'',
                                'required': 'True'
                             }))
+    end = forms.DateTimeField(widget=DateTimePickerInput(
+                options={
+                    "format": "MM/DD/YYYY HH/mm",
+                    #"autoclose": True #TODO: throws error: inputElement.dataset is undefined
+                }
+            )
+        )
+                           
     image = forms.ImageField(required=False)
     description = forms.CharField(max_length=500, required=False,
                             widget= forms.Textarea

@@ -28,6 +28,10 @@ body {
     height: 150px;
 }
 
+#id_bid {
+    width: 100%;
+}
+
 /* create listing */
 #id_description {
     width: 100%;

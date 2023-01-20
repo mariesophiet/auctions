@@ -41,6 +41,10 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    
+    # datepicker widget in add listing
+    'bootstrap4',
+    "bootstrap_datepicker_plus",
 ]
 
 MIDDLEWARE = [

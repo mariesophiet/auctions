@@ -26,6 +26,7 @@ class Listing(models.Model):
     description = models.CharField(max_length=500)
     price = models.DecimalField(max_digits=10, decimal_places=2)
     date = models.DateTimeField(default=datetime.now, blank=True)
+    date_end = models.DateTimeField(default=datetime.now) # TODO: hacky fix
     active = models.BooleanField(default=True)
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="lister")
     img = models.ImageField(upload_to="images", default=None)
@@ -35,7 +36,8 @@ class Bids(models.Model):
     product = models.ForeignKey(Listing, on_delete=models.CASCADE)#, related_name="bidProduct", blank=False, null=False)
     max_bid = models.DecimalField(max_digits=10, decimal_places=2)
     date = models.DateTimeField(default=datetime.now, blank=True)
-    
+    number_bids = models.IntegerField(default=0)
+
 class Comments(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="author")
     product = models.ForeignKey(Listing, on_delete=models.CASCADE)#, related_name="commentProduct", blank=False, null=False)
