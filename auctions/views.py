@@ -9,13 +9,18 @@ from .models import User, Listing, Comments, Bids
 
 from bootstrap_datepicker_plus.widgets import DateTimePickerInput
 
+from django.core.exceptions import ValidationError
+from django.utils.translation import gettext_lazy as _
+import datetime
+
 def index(request):
     return render(request, "auctions/index.html", {
         "listings": Listing.objects.all
     })
 
-# form to write a new comment
+
 class NewCommentForm(forms.Form):
+    # form to write a new comment
     content = forms.CharField(max_length=500, required=False,
                             widget= forms.Textarea
                            (attrs={
@@ -25,8 +30,9 @@ class NewCommentForm(forms.Form):
                                'required': 'True'
                             }))
 
-# form to give a new bid
+
 class NewBidForm(forms.Form):
+    # form to give a new bid
     bid = forms.DecimalField(max_digits=10, decimal_places=2, required=False,
                                 widget= forms.NumberInput #TODO: test
                            (attrs={
@@ -38,7 +44,7 @@ class NewBidForm(forms.Form):
 
 def view_item(request, id):
     if request.method == "POST":
-        # post a new comment
+        ''' post a new comment '''
 
         content = request.POST["content"]
         # get current user's id
@@ -116,7 +122,7 @@ def register(request):
 class NewListingForm(forms.Form):
     # form to add a new product to sell
 
-    title = forms.CharField(label="Title", required=False,
+    title = forms.CharField(label="Title", required=True,
                             widget= forms.TextInput
                            (attrs={
                                'class': 'title',
@@ -125,7 +131,7 @@ class NewListingForm(forms.Form):
                                'required': 'True'
                             }))
     category = forms.ChoiceField(required=False, choices=Listing.category.field.choices)
-    price = forms.DecimalField(max_digits=10, decimal_places=2, required=False,
+    price = forms.DecimalField(label="Starting Price", max_digits=10, decimal_places=2, required=True,
                                 widget= forms.NumberInput #TODO: test
                            (attrs={
                                'class': 'price',
@@ -133,10 +139,12 @@ class NewListingForm(forms.Form):
                                'placeholder':'',
                                'required': 'True'
                             }))
-    end = forms.DateTimeField(widget=DateTimePickerInput(
+    end = forms.DateTimeField(label="End of Auction", widget=DateTimePickerInput(
                 options={
                     "format": "MM/DD/YYYY HH/mm",
-                    #"autoclose": True #TODO: throws error: inputElement.dataset is undefined
+
+                    # TODO: the following throws error "inputElement.dataset is undefined"
+                    #"autoclose": True 
                 }
             )
         )
@@ -151,19 +159,57 @@ class NewListingForm(forms.Form):
                                'required': 'True',
                             }))
 
+    # clean_*variable_name* overrides the clean function that is called with .is_valid()                      
+    def clean_end(self):
+        '''check if end is valid -> date has to be in the future'''
+
+        data = self.cleaned_data["end"]
+
+        # fix error: Can't compare naive and aware datetime.now()
+        # sol: datetime.now() ist not timezone aware 
+        '''import pytz
+        utc = pytz.UTC 
+
+        data = utc.localize(data.replace(tzinfo=utc)) # data posted in form
+        now = utc.localize(datetime.datetime.now().replace(tzinfo=utc)) # now'''
+        from django.utils import timezone
+        now = timezone.now()
+
+        # check if date is not in the past
+        if data < now:
+            raise ValidationError(_("Invalid date - end of auction in the past!"))
+        return data
+
+
 def listing(request):
     if request.method == "POST":
         # save the new product in db
         title = request.POST["title"]
         category = request.POST["category"]
         price = request.POST["price"]
+        end = request.POST["end"]
         image = request.FILES["image"]
         description = request.POST["description"]
+        user = request.user
 
-        listing = Listing(title=title, category=category, price=price, img=image, description=description, user=request.user)
-        listing.save()
-        # redirect to index page 
-        return HttpResponseRedirect("/")
+        # check if form is valid, especially if date is not in past
+        form = NewListingForm(request.POST)
+        if form.is_valid():
+            listing = Listing(title=title, category=category, price=price, date_end=end, img=image, description=description, user=user)
+            listing.save()
+
+            # save a dummy bid to initiate the bidding process
+            #id = listing.id  # TODO: how to get the new id of the saved listing
+            bid = Bids(user=user, product=listing, max_bid=0, number_bids=0)
+            bid.save()
+
+            # redirect to index page 
+            return HttpResponseRedirect("/")
+        else:
+            # return to form and show error messages
+            return render(request, "auctions/listing.html", {
+            "form": form
+        })
     
     else: 
         return render(request, "auctions/listing.html", {

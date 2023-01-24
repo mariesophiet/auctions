@@ -11,11 +11,16 @@
             <h1>{{ listing.title }}</h1>
             <p>Starting price: EUR {{ listing.price }}</p>
             <p>{{ listing.description }}</p>
-            <p>TODO: Time left | Created {{ listing.date }}</p>
+            <p>Active until: <b>{{ listing.date_end }}</b> | Created: {{ listing.date }}</p>
 
             <!-- Bidding -->
-            <h5><b>Current bid: EUR {{ bids.max_bid }} </b></h5>
-            <p>TODO: bidding field</p>
+            <h5><b>Current bid: </b>
+                {% if bids.max_bid > 0 %} 
+                    <b>EUR {{ bids.max_bid }} </b>
+                {% else %}
+                    Be the first to bid.
+                {% endif %}
+            </h5>
             <blockquote class="blockquote">
                 <form action="{% url 'auctions:item' id=listing.id %}" method="post" enctype='multipart/form-data'>
                     {% csrf_token %}
