@@ -19,6 +19,7 @@ from django.utils import timezone
 def index(request):
     return render(request, "auctions/index.html", {
         "listings": Listing.objects.all
+        # TODO: display current maximum bid, not the starting price
     })
 
 
@@ -56,17 +57,20 @@ class NewBidForm(forms.Form):
     # override the standard clean function for the variable "bid"
     def clean_bid(self):
         bid = self.cleaned_data["bid"]
+        
         # get the current maximun bid
         item = Bids.objects.get(product_id=self.product_id)
         current_bid = item.max_bid
 
-        if not Decimal(bid):
+        # minimum next bid
+        min = current_bid * Decimal("1.01")
+
+        if not str(bid).isdecimal():
             raise ValidationError(_("Invalid bid - please type in a number!"))
 
         # NEW BID HAS TO BE BIGGER THAN AT LEAST 1% OF THE CURRENT MAXIMUM BID
-        if bid < current_bid * Decimal(1.01):
-            raise ValidationError(_("Invalid bid - your bid has to be at least " + current_bid * 1.01 + " EUR!"))
-        print(bid, "bid in clean")
+        elif bid < min:
+            raise ValidationError(_("Invalid bid - your bid has to be at least " + str(min) + " EUR!"))
         return bid
 
     def clean(self):
@@ -93,21 +97,18 @@ def view_item(request, id):
         return render(request, "auctions/item.html", {
             "listing": Listing.objects.get(id=id),
             "comments": Comments.objects.filter(product_id=id),
-            "form_comment": NewCommentForm(request.POST),
+            "form_comment": NewCommentForm(),
             "bids": Bids.objects.get(product_id=id),
-            "form_bid": NewBidForm(request.POST, product_id=id)
+            "form_bid": NewBidForm(product_id=id)
         })
 
 def new_bid(request, id):
-    import logging
     if request.method == "POST":
         '''check and save the new bid in database'''
 
         # check if form is valid, especially if bid is a decimal
         form = NewBidForm(request.POST, product_id=id)
         if form.is_valid():
-            
-            logging.warning("bid form is valid")
             bid = form.cleaned_data["bid"]
             print("bid in new bid: ", bid)
             
@@ -124,11 +125,10 @@ def new_bid(request, id):
             update_bid.date=current_time
             # Django uses .save() for both SQL INSERT and CREATE
             update_bid.save()
-            logging.warning("bid db updated")
             return HttpResponseRedirect(str(id))
         else:
             # return to form and show error messages
-            logging.warning("bid form not valid")
+            
             return render(request, "auctions/item.html", {
                 "listing": Listing.objects.get(id=id),
                 "comments": Comments.objects.filter(product_id=id),
@@ -138,7 +138,6 @@ def new_bid(request, id):
             })
         # TODO: get missing?
     else:
-        logging.warning("it's a GET in new_bid")
         return view_item(request, id)
 
 
@@ -276,7 +275,6 @@ def listing(request):
             listing.save()
 
             # save a dummy bid to initiate the bidding process
-            #id = listing.id  # TODO: how to get the new id of the saved listing
             bid = Bids(user=user, product=listing, max_bid=0, number_bids=0)
             bid.save()
 
@@ -285,12 +283,12 @@ def listing(request):
         else:
             # return to form and show error messages
             return render(request, "auctions/listing.html", {
-            "form": form
+                "form": form
         })
     
     else: 
         return render(request, "auctions/listing.html", {
-            "form": NewListingForm(request.POST, request.FILES)
+            "form": NewListingForm(request.POST or None, request.FILES)
         })
 
 def categories(request):
