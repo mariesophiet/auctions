@@ -4,14 +4,17 @@ from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render
 from django.urls import reverse
 from django import forms
+from django.db.models import F
 
 from .models import User, Listing, Comments, Bids
 
 from bootstrap_datepicker_plus.widgets import DateTimePickerInput
+from decimal import Decimal
 
 from django.core.exceptions import ValidationError
 from django.utils.translation import gettext_lazy as _
-import datetime
+from django.utils import timezone
+
 
 def index(request):
     return render(request, "auctions/index.html", {
@@ -29,10 +32,18 @@ class NewCommentForm(forms.Form):
                                'placeholder':'Enter your comment here',
                                'required': 'True'
                             }))
-
+    def clean(self):
+        cleaned_data = self.cleaned_data
+        return cleaned_data
 
 class NewBidForm(forms.Form):
-    # form to give a new bid
+    '''form to give a new bid '''
+    
+    # init function so that we can access product_id in clean_bid
+    def __init__(self,*args,**kwargs):
+            self.product_id = kwargs.pop('product_id')
+            super(NewBidForm,self).__init__(*args,**kwargs)
+
     bid = forms.DecimalField(max_digits=10, decimal_places=2, required=False,
                                 widget= forms.NumberInput #TODO: test
                            (attrs={
@@ -41,6 +52,26 @@ class NewBidForm(forms.Form):
                                'placeholder':'',
                                'required': 'True'
                             }))
+
+    # override the standard clean function for the variable "bid"
+    def clean_bid(self):
+        bid = self.cleaned_data["bid"]
+        # get the current maximun bid
+        item = Bids.objects.get(product_id=self.product_id)
+        current_bid = item.max_bid
+
+        if not Decimal(bid):
+            raise ValidationError(_("Invalid bid - please type in a number!"))
+
+        # NEW BID HAS TO BE BIGGER THAN AT LEAST 1% OF THE CURRENT MAXIMUM BID
+        if bid < current_bid * Decimal(1.01):
+            raise ValidationError(_("Invalid bid - your bid has to be at least " + current_bid * 1.01 + " EUR!"))
+        print(bid, "bid in clean")
+        return bid
+
+    def clean(self):
+        cleaned_data = self.cleaned_data
+        return cleaned_data
 
 def view_item(request, id):
     if request.method == "POST":
@@ -56,7 +87,7 @@ def view_item(request, id):
         comment.save()
         
         # reload the item page of the specific item
-        return HttpResponseRedirect(str(id))
+        return HttpResponseRedirect(reverse("auctions:item", kwargs={"id":id}))
         
     else:
         return render(request, "auctions/item.html", {
@@ -64,8 +95,51 @@ def view_item(request, id):
             "comments": Comments.objects.filter(product_id=id),
             "form_comment": NewCommentForm(request.POST),
             "bids": Bids.objects.get(product_id=id),
-            "form_bid": NewBidForm(request.POST)
+            "form_bid": NewBidForm(request.POST, product_id=id)
         })
+
+def new_bid(request, id):
+    import logging
+    if request.method == "POST":
+        '''check and save the new bid in database'''
+
+        # check if form is valid, especially if bid is a decimal
+        form = NewBidForm(request.POST, product_id=id)
+        if form.is_valid():
+            
+            logging.warning("bid form is valid")
+            bid = form.cleaned_data["bid"]
+            print("bid in new bid: ", bid)
+            
+            current_time = timezone.now()
+
+            # update new maximum bid
+            # (F() object represents the value of a model field and 
+            # avoids race condition, because DB updates the value -not python!)
+            update_bid = Bids.objects.get(product_id=id)
+            
+            update_bid.max_bid = bid
+            update_bid.number_bids=F("number_bids")+1
+            update_bid.user=request.user
+            update_bid.date=current_time
+            # Django uses .save() for both SQL INSERT and CREATE
+            update_bid.save()
+            logging.warning("bid db updated")
+            return HttpResponseRedirect(str(id))
+        else:
+            # return to form and show error messages
+            logging.warning("bid form not valid")
+            return render(request, "auctions/item.html", {
+                "listing": Listing.objects.get(id=id),
+                "comments": Comments.objects.filter(product_id=id),
+                "form_comment": NewCommentForm(request.POST),
+                "bids": Bids.objects.get(product_id=id),
+                "form_bid": form
+            })
+        # TODO: get missing?
+    else:
+        logging.warning("it's a GET in new_bid")
+        return view_item(request, id)
 
 
 def login_view(request):
@@ -172,13 +246,16 @@ class NewListingForm(forms.Form):
 
         data = utc.localize(data.replace(tzinfo=utc)) # data posted in form
         now = utc.localize(datetime.datetime.now().replace(tzinfo=utc)) # now'''
-        from django.utils import timezone
+        
         now = timezone.now()
-
         # check if date is not in the past
         if data < now:
             raise ValidationError(_("Invalid date - end of auction in the past!"))
         return data
+
+    def clean(self):
+        cleaned_data = self.cleaned_data
+        return cleaned_data
 
 
 def listing(request):

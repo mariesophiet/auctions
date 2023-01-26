@@ -22,11 +22,10 @@
                 {% endif %}
             </h5>
             <blockquote class="blockquote">
-                <form action="{% url 'auctions:item' id=listing.id %}" method="post" enctype='multipart/form-data'>
+                <form action="{% url 'auctions:bid' id=listing.id %}" method="post" enctype='multipart/form-data'>
                     {% csrf_token %}
-                    {% for field in form_bid %}
-                    {{ field }}
-                    {% endfor %}
+                    {% bootstrap_form form_bid %}
+                    
                     <input class="form-control" type="submit" value="Post">
                 </form>
                 </blockquote>
