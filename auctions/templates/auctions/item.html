@@ -18,8 +18,10 @@
         <div class="col-md-auto">
             <!-- Display watchlist button next to listing's title -->
             <div class="clearfix">
-                <h1 class="float-left">{{ listing.title }}</h1> 
-                <button type="button" class="btn btn-outline-dark float-right d-inline">Add to Watchlist</button>
+                <h1 class="float-left">{{ listing.title }}</h1>
+                {% if user.is_authenticated %} 
+                <button type="button" class="btn btn-outline-dark float-right">Add to Watchlist</button>
+                {% endif %}
             </div>
             <p>Starting price: EUR {{ listing.price }}</p>
             <p>{{ listing.description }}</p>
@@ -33,14 +35,20 @@
                     Be the first to bid.
                 {% endif %}
             </h5>
+            {% if user.is_authenticated %}
+            <hr>
             <blockquote class="blockquote">
                 <form action="{% url 'auctions:bid' id=listing.id %}" method="post" enctype='multipart/form-data'>
                     {% csrf_token %}
                     {% bootstrap_form form_bid show_label=False %}
-                    <input class="form-control" type="submit" value="Enter your Bid">
+                    <input class="form-control btn btn-outline-dark" type="submit" value="Place your Bid">
                 </form>
                 </blockquote>
-            <p> {{ bids.number_bids }}  bids on this listing</p>
+            {% else %}
+            <hr>
+            <h4>Log in to place a bid.</h4>
+            {% endif %}
+            <p> [{{ bids.number_bids }}  bids on this listing]</p>
         </div>
     </div>
 
@@ -68,15 +76,17 @@
             {% endif %}
 
             <!-- Write own comment -->
+            {% if user.is_authenticated %}
             <blockquote class="blockquote">
             <form action="{% url 'auctions:item' id=listing.id %}" method="post" enctype='multipart/form-data'>
                 {% csrf_token %}
                 {% for field in form_comment %}
                 {{ field }}
                 {% endfor %}
-                <input class="form-control" type="submit" value="Post Comment">
+                <input class="form-control btn btn-outline-dark" type="submit" value="Post Comment">
             </form>
             </blockquote>
+            {% endif %}
         </div>
     </div>
    
