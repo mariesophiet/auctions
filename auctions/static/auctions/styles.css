@@ -32,6 +32,13 @@ body {
     width: 100%;
 }
 
+#comment {
+    background-color: #F3F3F3;
+    padding: 10px;
+
+    
+}
+
 /* create listing */
 #id_description {
     width: 100%;

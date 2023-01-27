@@ -15,12 +15,16 @@
             <p><img src="/media/images/placeholder.svg" alt="Image" width="400"></p>
             {% endif %}
         </div>
-        <div class="col">
-            <h1>{{ listing.title }}</h1>
+        <div class="col-md-auto">
+            <!-- Display watchlist button next to listing's title -->
+            <div class="clearfix">
+                <h1 class="float-left">{{ listing.title }}</h1> 
+                <button type="button" class="btn btn-outline-dark float-right d-inline">Add to Watchlist</button>
+            </div>
             <p>Starting price: EUR {{ listing.price }}</p>
             <p>{{ listing.description }}</p>
             <p>Active until: <b>{{ listing.date_end }}</b> | Created: {{ listing.date }}</p>
-
+    
             <!-- Bidding -->
             <h5><b>Current bid: </b>
                 {% if bids.max_bid > 0 %} 
@@ -32,12 +36,11 @@
             <blockquote class="blockquote">
                 <form action="{% url 'auctions:bid' id=listing.id %}" method="post" enctype='multipart/form-data'>
                     {% csrf_token %}
-                    {% bootstrap_form form_bid %}
-                    
-                    <input class="form-control" type="submit" value="Post">
+                    {% bootstrap_form form_bid show_label=False %}
+                    <input class="form-control" type="submit" value="Enter your Bid">
                 </form>
                 </blockquote>
-            <p># bids</p>
+            <p> {{ bids.number_bids }}  bids on this listing</p>
         </div>
     </div>
 
@@ -49,7 +52,7 @@
             {% for comment in comments %}
             <div class="row">
                 <div class="col">
-            <figure>
+            <figure id="comment">
                 <blockquote class="blockquote">
                     <p>{{ comment.comment }}</p>
                 </blockquote>
@@ -71,7 +74,7 @@
                 {% for field in form_comment %}
                 {{ field }}
                 {% endfor %}
-                <input class="form-control" type="submit" value="Post">
+                <input class="form-control" type="submit" value="Post Comment">
             </form>
             </blockquote>
         </div>
