@@ -2,7 +2,7 @@
 
 {% block body %}
 <div class="container">
-    <h2>Categories</h2>
+    <h1>Categories</h1>
     {% for category in categories %}
     <p><a href="{% url 'auctions:category' category=category %}">{{ category }}</a></p>
     {% endfor %}

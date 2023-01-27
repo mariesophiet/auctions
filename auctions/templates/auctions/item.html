@@ -20,7 +20,10 @@
             <div class="clearfix">
                 <h1 class="float-left">{{ listing.title }}</h1>
                 {% if user.is_authenticated %} 
-                <button type="submit" class="btn btn-outline-dark float-right">Add to Watchlist</button> 
+                <form action="{% url 'auctions:add_watchlist' id=listing.id %}" method="post">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-outline-dark float-right">Add to Watchlist</button> 
+                </form>
                 {% endif %}
             </div>
             <p>Starting price: EUR {{ listing.price }}</p>

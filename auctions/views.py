@@ -6,7 +6,7 @@ from django.urls import reverse
 from django import forms
 from django.db.models import F
 
-from .models import User, Listing, Comments, Bids
+from .models import User, Listing, Comments, Bids, Watchlist
 
 from bootstrap_datepicker_plus.widgets import DateTimePickerInput
 from decimal import Decimal
@@ -236,16 +236,10 @@ class NewListingForm(forms.Form):
         '''check if end is valid -> date has to be in the future'''
 
         data = self.cleaned_data["end"]
-
         # fix error: Can't compare naive and aware datetime.now()
         # sol: datetime.now() ist not timezone aware 
-        '''import pytz
-        utc = pytz.UTC 
-
-        data = utc.localize(data.replace(tzinfo=utc)) # data posted in form
-        now = utc.localize(datetime.datetime.now().replace(tzinfo=utc)) # now'''
-        
         now = timezone.now()
+
         # check if date is not in the past
         if data < now:
             raise ValidationError(_("Invalid date - end of auction in the past!"))
@@ -259,11 +253,7 @@ class NewListingForm(forms.Form):
 def listing(request):
     if request.method == "POST":
         ''' save the new product in db '''
-       
-        # check if user uploaded an image
-       
-        #image = request.FILES["image"]
-       
+              
         # check if form is valid, especially if date is not in past
         form = NewListingForm(request.POST)
         if form.is_valid():
@@ -273,7 +263,6 @@ def listing(request):
             end = form.cleaned_data["end"]
             description = form.cleaned_data["description"]
             user = request.user
-
             # check if an image was uploaded
             image = request.FILES.get("image", None)
             
@@ -298,19 +287,36 @@ def listing(request):
         })
 
 def categories(request):
-    # show all categories 
+    ''' show all categories '''
 
-    # fix to get only the second values in CATEGORIES
+    # fix to get only the second values in CATEGORIES (e.g. ("ELECTRONICS", "Electronics"))
     categories = [cat[1] for cat in Listing.CATEGORIES]
+
     return render(request, "auctions/categories.html", {
         "categories": categories
     })
 
 def view_category(request, category):
-    # only show listings of one category
+    ''' only show listings of one category '''
     return render(request, "auctions/index.html", {
         "listings": Listing.objects.filter(category=category.upper())
     })
 
+def add_watchlist(request, id):
+    ''' add item to user's watchlist'''
+    if request.method == "POST":
+        product = Listing.objects.get(id=id)
+        watchlist = Watchlist(user=request.user, product=product)
+        watchlist.save()
+
+        # TODO: disable add to watchlist button on this listing
+        return view_item(request, id)
+
 def watchlist(request):
-    return render(request, "auctions/index.html")
+        ''' list all the items on the watchlist'''
+        listings = Watchlist.objects.filter(user=request.user)
+        # TODO: hacky fix because we need only (!) the product object for every element on the watchlist
+        
+        return render(request, "auctions/watchlist.html", {
+            "items": listings
+        })
