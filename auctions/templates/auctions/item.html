@@ -8,7 +8,12 @@
 <div class="container">
     <div class="row border-bottom">
         <div class="col">
+            {% if listing.img %}
             <p><img src="{{ listing.img.url }}" alt="Image" width="400"></p>
+            {% else %}
+            <!-- Placeholder image if no img is uploaded by user -->
+            <p><img src="/media/images/placeholder.svg" alt="Image" width="400"></p>
+            {% endif %}
         </div>
         <div class="col">
             <h1>{{ listing.title }}</h1>

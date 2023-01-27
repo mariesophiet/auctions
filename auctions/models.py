@@ -29,7 +29,7 @@ class Listing(models.Model):
     date_end = models.DateTimeField(default=datetime.now) # TODO: hacky fix
     active = models.BooleanField(default=True)
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="lister")
-    img = models.ImageField(upload_to="images", default=None)
+    img = models.ImageField(upload_to="images", default=None, blank=True) # TODO: default placeholder if no img is uploaded
     
 class Bids(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="bidder")
@@ -43,3 +43,4 @@ class Comments(models.Model):
     product = models.ForeignKey(Listing, on_delete=models.CASCADE)
     comment = models.CharField(max_length=500)
     date = models.DateTimeField(default=datetime.now, blank=True)
+

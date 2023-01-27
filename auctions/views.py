@@ -15,7 +15,6 @@ from django.core.exceptions import ValidationError
 from django.utils.translation import gettext_lazy as _
 from django.utils import timezone
 
-
 def index(request):
     return render(request, "auctions/index.html", {
         "listings": Listing.objects.all
@@ -259,18 +258,25 @@ class NewListingForm(forms.Form):
 
 def listing(request):
     if request.method == "POST":
-        # save the new product in db
-        title = request.POST["title"]
-        category = request.POST["category"]
-        price = request.POST["price"]
-        end = request.POST["end"]
-        image = request.FILES["image"]
-        description = request.POST["description"]
-        user = request.user
-
+        ''' save the new product in db '''
+       
+        # check if user uploaded an image
+       
+        #image = request.FILES["image"]
+       
         # check if form is valid, especially if date is not in past
         form = NewListingForm(request.POST)
         if form.is_valid():
+            title = form.cleaned_data["title"]
+            category = form.cleaned_data["category"]
+            price = form.cleaned_data["price"]
+            end = form.cleaned_data["end"]
+            description = form.cleaned_data["description"]
+            user = request.user
+
+            # check if an image was uploaded
+            image = request.FILES.get("image", None)
+            
             listing = Listing(title=title, category=category, price=price, date_end=end, img=image, description=description, user=user)
             listing.save()
 
@@ -288,7 +294,7 @@ def listing(request):
     
     else: 
         return render(request, "auctions/listing.html", {
-            "form": NewListingForm(request.POST or None, request.FILES)
+            "form": NewListingForm(request.POST or None, request.FILES or None)
         })
 
 def categories(request):
