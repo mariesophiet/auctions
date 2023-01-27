@@ -19,7 +19,7 @@
             <h4 class="card-title"><a href="{% url 'auctions:item' id=listing.id %}">{{ listing.title }}</a></h4>
             <p>Price: {{ listing.price }}</p>
             <p>{{ listing.description }}</p>
-            <p>Created {{ listing.date_creation }}</p>
+            <p>Active until {{ listing.date_end }}</p>
         </div>   
         </div> 
     {% endfor %}

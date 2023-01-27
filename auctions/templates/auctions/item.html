@@ -20,7 +20,7 @@
             <div class="clearfix">
                 <h1 class="float-left">{{ listing.title }}</h1>
                 {% if user.is_authenticated %} 
-                <button type="button" class="btn btn-outline-dark float-right">Add to Watchlist</button>
+                <button type="submit" class="btn btn-outline-dark float-right">Add to Watchlist</button> 
                 {% endif %}
             </div>
             <p>Starting price: EUR {{ listing.price }}</p>
@@ -80,9 +80,7 @@
             <blockquote class="blockquote">
             <form action="{% url 'auctions:item' id=listing.id %}" method="post" enctype='multipart/form-data'>
                 {% csrf_token %}
-                {% for field in form_comment %}
-                {{ field }}
-                {% endfor %}
+                {% bootstrap_form form_comment show_label=False %}
                 <input class="form-control btn btn-outline-dark" type="submit" value="Post Comment">
             </form>
             </blockquote>

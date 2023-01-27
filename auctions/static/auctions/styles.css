@@ -18,6 +18,10 @@ body {
     object-fit: cover;
 }
 
+.card-title {
+    padding-top: 10px;
+}
+
 .card {
     width: 18rem; 
 }
@@ -35,8 +39,6 @@ body {
 #comment {
     background-color: #F3F3F3;
     padding: 10px;
-
-    
 }
 
 /* create listing */
