@@ -341,3 +341,11 @@ def watchlist(request):
         return render(request, "auctions/watchlist.html", {
             "items": listings
         })
+
+def boughtlist(request):
+    '''list all the items that the user bought/ won the bidding process for'''
+    items = Bought.objects.filter(user=request.user)
+    return render(request, "auctions/boughtlist.html", {
+        "items": items
+    })
+    
