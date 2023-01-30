@@ -48,4 +48,9 @@ class Watchlist(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="watcher")
     product = models.ForeignKey(Listing, on_delete=models.CASCADE)
 
+class Bought(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="buyer")
+    product = models.ForeignKey(Listing, on_delete=models.CASCADE)
+    date = models.DateTimeField(default=datetime.now, blank=True)
+
 

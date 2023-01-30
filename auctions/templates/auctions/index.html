@@ -17,9 +17,10 @@
                 {% endif %}
             </a>
             <h4 class="card-title"><a href="{% url 'auctions:item' id=listing.id %}">{{ listing.title }}</a></h4>
-            <p>Price: {{ listing.price }}</p>
+            <p>Starting Price: {{ listing.price }}</p>
             <p>{{ listing.description }}</p>
             <p>Active until {{ listing.date_end }}</p>
+            <p>{{ now }}</p>
         </div>   
         </div> 
     {% endfor %}

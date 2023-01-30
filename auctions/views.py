@@ -6,7 +6,7 @@ from django.urls import reverse
 from django import forms
 from django.db.models import F
 
-from .models import User, Listing, Comments, Bids, Watchlist
+from .models import User, Listing, Comments, Bids, Watchlist, Bought
 
 from bootstrap_datepicker_plus.widgets import DateTimePickerInput
 from decimal import Decimal
@@ -16,10 +16,31 @@ from django.utils.translation import gettext_lazy as _
 from django.utils import timezone
 
 def index(request):
+    '''display all active listings '''
+    check_active()
     return render(request, "auctions/index.html", {
-        "listings": Listing.objects.all
+        "listings": Listing.objects.filter(active=True),
         # TODO: display current maximum bid, not the starting price
     })
+
+def check_active():
+    # TODO: check if the listings that expire today (other function) already have expired
+    active = list(Listing.objects.filter(active=True))
+    for i, listing in enumerate(active):
+        print(i)
+        if listing.date_end < timezone.localtime(timezone.now()):
+            print(i)
+            # listing expired, set to inactive
+            item = active[i]
+            item.active = False
+            item.save()
+            # make a new entry in Bought, if someone made an offer for the listing
+            bid = Bids.objects.get(product_id=listing.id)
+            if bid.number_bids > 0:
+                new_bought = Bought(user=bid.user, product=bid.product, date=listing.date_end)
+                new_bought.save()
+    return
+
 
 
 class NewCommentForm(forms.Form):
@@ -111,7 +132,7 @@ def new_bid(request, id):
             bid = form.cleaned_data["bid"]
             print("bid in new bid: ", bid)
             
-            current_time = timezone.now()
+            current_time = timezone.localtime(timezone.now())
 
             # update new maximum bid
             # (F() object represents the value of a model field and 
@@ -238,7 +259,7 @@ class NewListingForm(forms.Form):
         data = self.cleaned_data["end"]
         # fix error: Can't compare naive and aware datetime.now()
         # sol: datetime.now() ist not timezone aware 
-        now = timezone.now()
+        now = timezone.localtime(timezone.now())
 
         # check if date is not in the past
         if data < now:

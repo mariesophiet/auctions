@@ -10,17 +10,17 @@
             <div class="col mb-5">
                 <div class="card">
                     <a href="{% url 'auctions:item' id=item.product.id %}">
-                        {% if item.img %}
-                        <img class="card-img-top" src="{{ item.img.url }}" alt="Image" height="120px">
+                        {% if item.product.img %}
+                        <img class="card-img-top" src="{{ item.product.img.url }}" alt="Image" height="120px">
                         {% else %}
                         <!-- Placeholder image if no img is uploaded by user -->
                         <img class="card-img-top" src="/media/images/placeholder.svg" alt="Image" height="120px">
                         {% endif %}
                     </a>
-                    <h4 class="card-title"><a href="{% url 'auctions:item' id=item.id %}">{{ listing.title }}</a></h4>
-                    <p>Price: {{ item.price }}</p>
-                    <p>{{ item.description }}</p>
-                    <p>Active until {{ item.date_end }}</p>
+                    <h4 class="card-title"><a href="{% url 'auctions:item' id=item.product.id %}">{{ item.product.title }}</a></h4>
+                    <p>Price: {{ item.product.price }}</p>
+                    <p>{{ item.product.description }}</p>
+                    <p>Active until {{ item.product.date_end }}</p>
                 </div>   
             </div> 
         {% endfor %}
