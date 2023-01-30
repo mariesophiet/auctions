@@ -1,7 +1,7 @@
 from django.contrib.auth import authenticate, login, logout
 from django.db import IntegrityError
 from django.http import HttpResponse, HttpResponseRedirect
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.urls import reverse
 from django import forms
 from django.db.models import F
@@ -331,7 +331,7 @@ def add_watchlist(request, id):
         watchlist.save()
 
         # TODO: disable add to watchlist button on this listing
-        return view_item(request, id)
+        return HttpResponseRedirect('/item/' + str(id))
 
 def watchlist(request):
         ''' list all the items on the watchlist'''
