@@ -18,12 +18,24 @@
         <div class="col-md-auto">
             <!-- Display watchlist button next to listing's title -->
             <div class="clearfix">
-                <h1 class="float-left">{{ listing.title }}</h1>
+                <h1 class="float-left">{{ listing.title }}
+                    <!-- already sold badge -->
+                    {% if not item.product.active %}
+                    <span class="badge bg-warning">Sold</span>
+                    {% endif %}
+                </h1>
                 {% if user.is_authenticated %} 
+                <!-- Watchlist -->
+                {% if watchlist %}
                 <form action="{% url 'auctions:add_watchlist' id=listing.id %}" method="post">
                     {% csrf_token %}
                     <button type="submit" class="btn btn-outline-dark float-right">Add to Watchlist</button> 
                 </form>
+                {% else %}
+                <div tabindex="0" data-bs-toggle="popover" data-bs-trigger="hover focus" data-bs-content="Disabled popover">
+                    <button type="button" class="btn btn-outline-dark float-right" disabled>Add to Watchlist</button>
+                </div>
+                {% endif %}
                 {% endif %}
             </div>
             <p>Starting price: EUR {{ listing.price }}</p>
@@ -78,7 +90,7 @@
             <p>No comments here. Be the first to comment.</p>
             {% endif %}
 
-            <!-- Write own comment -->
+            <!-- Write a new comment -->
             {% if user.is_authenticated %}
             <blockquote class="blockquote">
             <form action="{% url 'auctions:item' id=listing.id %}" method="post" enctype='multipart/form-data'>

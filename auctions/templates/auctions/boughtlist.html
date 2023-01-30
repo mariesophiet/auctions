@@ -17,7 +17,8 @@
                         <img class="card-img-top" src="/media/images/placeholder.svg" alt="Image" height="120px">
                         {% endif %}
                     </a>
-                    <h4 class="card-title"><a href="{% url 'auctions:item' id=item.product.id %}">{{ item.product.title }}</a></h4>
+                    <h4 class="card-title"><a href="{% url 'auctions:item' id=item.product.id %}">{{ item.product.title }}</a>
+                        <span class="badge bg-warning">Sold</span></h4>
                     <p>TODO: Price: {{ item.product.price }}</p>
                     <p>{{ item.product.description }}</p>
                 </div>   

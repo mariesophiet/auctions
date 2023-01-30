@@ -17,7 +17,12 @@
                         <img class="card-img-top" src="/media/images/placeholder.svg" alt="Image" height="120px">
                         {% endif %}
                     </a>
-                    <h4 class="card-title"><a href="{% url 'auctions:item' id=item.product.id %}">{{ item.product.title }}</a></h4>
+                    <h4 class="card-title"><a href="{% url 'auctions:item' id=item.product.id %}">{{ item.product.title }}</a>
+                    <!-- already sold badge -->
+                        {% if not item.product.active %}
+                    <span class="badge bg-warning">Sold</span>
+                    {% endif %}
+                    </h4>
                     <p>Price: {{ item.product.price }}</p>
                     <p>{{ item.product.description }}</p>
                     <p>Active until {{ item.product.date_end }}</p>

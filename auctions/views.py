@@ -27,9 +27,7 @@ def check_active():
     # TODO: check if the listings that expire today (other function) already have expired
     active = list(Listing.objects.filter(active=True))
     for i, listing in enumerate(active):
-        print(i)
         if listing.date_end < timezone.localtime(timezone.now()):
-            print(i)
             # listing expired, set to inactive
             item = active[i]
             item.active = False
@@ -40,8 +38,6 @@ def check_active():
                 new_bought = Bought(user=bid.user, product=bid.product, date=listing.date_end)
                 new_bought.save()
     return
-
-
 
 class NewCommentForm(forms.Form):
     # form to write a new comment
@@ -63,6 +59,7 @@ class NewBidForm(forms.Form):
     # init function so that we can access product_id in clean_bid
     def __init__(self,*args,**kwargs):
             self.product_id = kwargs.pop('product_id')
+            self.user = kwargs.pop('user')
             super(NewBidForm,self).__init__(*args,**kwargs)
 
     bid = forms.DecimalField(max_digits=10, decimal_places=2, required=False,
@@ -91,7 +88,27 @@ class NewBidForm(forms.Form):
         # NEW BID HAS TO BE BIGGER THAN AT LEAST 1% OF THE CURRENT MAXIMUM BID
         elif bid < min:
             raise ValidationError(_("Invalid bid - your bid has to be at least " + str(min) + " EUR!"))
+
+        # check time
+        self.check_date()
+        # check bidder != seller
+        self.check_user()
         return bid
+    
+    def check_date(self):
+        ''' check if time now is before the end of the auction '''
+        date = timezone.localtime(timezone.now())
+        end = Listing.objects.get(id=self.product_id).date_end
+        if date > end:
+            raise ValidationError(_("The bidding process on this item is terminated!"))
+        return 
+
+    def check_user(self):
+        ''' check if user != bidder '''
+        bidder = self.user
+        seller = Listing.objects.get(id=self.product_id).user
+        if bidder.id == seller.id:
+            raise ValidationError(_("You cannot bid on the item you are selling!"))
 
     def clean(self):
         cleaned_data = self.cleaned_data
@@ -104,7 +121,8 @@ def view_item(request, id):
         content = request.POST["content"]
         # get current user's id
         user = request.user
-        product = Listing.objects.get(id=id) # TODO: hacky fix 
+        # get current product as an object
+        product = Listing.objects.get(id=id) 
 
         # save the comment in db
         comment = Comments(user=user, product=product, comment=content)
@@ -114,12 +132,18 @@ def view_item(request, id):
         return HttpResponseRedirect(reverse("auctions:item", kwargs={"id":id}))
         
     else:
+        # check if the current user already has the item on his/her watchlist
+        if Watchlist.objects.filter(product_id=id, user=request.user):
+            watchlist = False
+        else:
+            watchlist = True
         return render(request, "auctions/item.html", {
             "listing": Listing.objects.get(id=id),
             "comments": Comments.objects.filter(product_id=id),
             "form_comment": NewCommentForm(),
             "bids": Bids.objects.get(product_id=id),
-            "form_bid": NewBidForm(product_id=id)
+            "form_bid": NewBidForm(product_id=id, user=request.user),
+            "watchlist": watchlist
         })
 
 def new_bid(request, id):
@@ -127,7 +151,7 @@ def new_bid(request, id):
         '''check and save the new bid in database'''
 
         # check if form is valid, especially if bid is a decimal
-        form = NewBidForm(request.POST, product_id=id)
+        form = NewBidForm(request.POST, product_id=id, user=request.user)
         if form.is_valid():
             bid = form.cleaned_data["bid"]
             print("bid in new bid: ", bid)
