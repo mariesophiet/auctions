@@ -19,7 +19,7 @@ def index(request):
     '''display all active listings '''
     check_active()
     return render(request, "auctions/index.html", {
-        "listings": Listing.objects.filter(active=True),
+        "listings": Listing.objects.filter(active=True).prefetch_related('productbid'),
         # TODO: display current maximum bid, not the starting price
     })
 

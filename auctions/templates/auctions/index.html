@@ -5,7 +5,9 @@
 <h1>Active Listings</h1>
 <div class="container text-center justify-center">
     <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3">
+        <!-- Nested for-loop because of JOIN (Listing join Bid) -->
     {% for listing in listings %}
+        {% for bid in listing.productbid.all %}
         <div class="col mb-5">
         <div class="card">
             <a href="{% url 'auctions:item' id=listing.id %}">
@@ -17,12 +19,13 @@
                 {% endif %}
             </a>
             <h4 class="card-title"><a href="{% url 'auctions:item' id=listing.id %}">{{ listing.title }}</a></h4>
-            <p>Starting Price: {{ listing.price }}</p>
+            <p>Current Bid: {{ bid.max_bid }}</p>
             <p>{{ listing.description }}</p>
             <p>Active until {{ listing.date_end }}</p>
             <p>{{ now }}</p>
         </div>   
         </div> 
+    {% endfor %}
     {% endfor %}
 </div>
 </div>
